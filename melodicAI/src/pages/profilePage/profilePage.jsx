@@ -1,5 +1,6 @@
 import { Box, Card, Typography } from "@mui/material";
 import React from "react";
+import Profile from "../../components/profile/profile";
 
 function ProfilePage() {
   return (
@@ -7,12 +8,13 @@ function ProfilePage() {
       <Card
         sx={{
           margin: "20px",
+          marginTop: "80px",
           padding: "20px",
           backgroundColor: "#f5f5f5",
           borderRadius: 4,
         }}
       >
-        <Typography>This is the profile page</Typography>
+        <Profile />
       </Card>
     </Box>
   );
