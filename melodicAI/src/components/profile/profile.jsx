@@ -3,11 +3,16 @@ import { Box, Button, Card, Typography, Divider } from "@mui/material";
 import { motion } from "framer-motion";
 import profilePhoto from "../../assets/profilePhoto.png";
 import RecentProjects from "../recentProjects/recentProjects";
+import { useNavigate } from "react-router-dom";
 
 const MotionCard = motion(Card);
 const MotionBox = motion(Box);
 
 function Profile() {
+  const navigate = useNavigate();
+  function handleSeeAllProjects() {
+    navigate("/projects");
+  }
   const projects = ["Midnight Echo", "Soft Horizon", "Analog Dreams"];
   return (
     <Box
@@ -159,6 +164,7 @@ function Profile() {
 
         <Box sx={{ textAlign: "right", mt: 4 }}>
           <Typography
+            onClick={handleSeeAllProjects}
             sx={{
               fontSize: "0.9rem",
               fontWeight: 500,

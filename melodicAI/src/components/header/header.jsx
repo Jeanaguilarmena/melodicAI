@@ -13,6 +13,8 @@ function Header() {
     { label: "Home", path: "/" },
     { label: "Profile", path: "/profile" },
     { label: "Produce", path: "/produce" },
+    { label: "play", path: "/play" },
+    { label: "Logout", path: "login" },
   ];
 
   return (

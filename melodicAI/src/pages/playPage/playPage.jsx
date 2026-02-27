@@ -1,8 +1,7 @@
-import { Box, Card, Typography } from "@mui/material";
 import React from "react";
-import PianoRoll from "../../components/pianoRoll/pianoRoll";
+import { Box, Card, Typography } from "@mui/material";
 
-function ProducePage() {
+function PlayPage() {
   return (
     <Box>
       <Card
@@ -14,10 +13,10 @@ function ProducePage() {
           borderRadius: 4,
         }}
       >
-        <PianoRoll />
+        <Typography>This is the play page</Typography>
       </Card>
     </Box>
   );
 }
 
-export default ProducePage;
+export default PlayPage;

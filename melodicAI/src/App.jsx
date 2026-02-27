@@ -4,6 +4,8 @@ import HeaderPage from "./pages/headerPage/headerPage";
 import MainPage from "./pages/mainPage/mainPage";
 import ProfilePage from "./pages/profilePage/profilePage";
 import ProducePage from "./pages/producePage/producePage";
+import PlayPage from "./pages/playPage/playPage";
+import ProjectsPage from "./pages/projectsPage/projectsPage";
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
           <Route index element={<MainPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/produce" element={<ProducePage />} />
+          <Route path="/play" element={<PlayPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
