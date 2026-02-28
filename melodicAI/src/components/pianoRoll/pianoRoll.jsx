@@ -8,15 +8,21 @@ const PianoRoll = () => {
   const stepsPerBeat = 4;
   const totalBars = 8;
 
-  const octaves = 4; // ✅ 4 octavas
+  const octaves = 4;
   const keysPerOctave = 12;
-  const totalKeys = octaves * keysPerOctave; // 48 teclas
+  const totalKeys = octaves * keysPerOctave;
   const rowHeight = 24;
 
   const totalStepsPerBar = beatsPerBar * stepsPerBeat;
   const totalSteps = totalBars * totalStepsPerBar;
 
+  const bpm = 120;
+
   const [zoom, setZoom] = useState(1);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [draggingPlayhead, setDraggingPlayhead] = useState(false);
+
   const baseStepWidth = 20;
   const stepWidth = baseStepWidth * zoom;
 
@@ -40,9 +46,8 @@ const PianoRoll = () => {
     "B",
   ];
 
-  const startOctave = 3; // porque empiezas en C3
+  const startOctave = 3;
 
-  // Ahora los pitch deben estar dentro de 0 - 47
   const [notes, setNotes] = useState([
     { pitch: 10, start: 0, length: 8 },
     { pitch: 14, start: 16, length: 16 },
@@ -51,6 +56,7 @@ const PianoRoll = () => {
   const [draggingNoteIndex, setDraggingNoteIndex] = useState(null);
   const [dragType, setDragType] = useState(null);
   const [cursor, setCursor] = useState("default");
+
   const audioRefs = useRef({});
 
   const pitchToNoteName = (pitch) => {
@@ -68,9 +74,39 @@ const PianoRoll = () => {
     }
 
     const audio = audioRefs.current[noteName];
-    audio.currentTime = 0; // permite repetir rápido
-    audio.play();
+
+    try {
+      audio.currentTime = 0;
+      audio.play();
+    } catch (err) {
+      console.log("Audio blocked:", err);
+    }
   };
+
+  // 🎵 MOTOR DE REPRODUCCIÓN
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const secondsPerBeat = 60 / bpm;
+    const secondsPerStep = secondsPerBeat / stepsPerBeat;
+
+    const interval = setInterval(() => {
+      setCurrentStep((prevStep) => {
+        const nextStep = (prevStep + 1) % totalSteps;
+
+        // 🔊 disparar notas que empiezan en este step
+        notes.forEach((note) => {
+          if (note.start === nextStep) {
+            playNote(note.pitch);
+          }
+        });
+
+        return nextStep;
+      });
+    }, secondsPerStep * 1000);
+
+    return () => clearInterval(interval);
+  }, [isPlaying, notes]);
 
   const isBlackKey = (noteIndex) => {
     const pattern = [1, 3, 6, 8, 10];
@@ -113,6 +149,7 @@ const PianoRoll = () => {
 
     const noteIndex = findNoteAtPosition(x, y);
 
+    // CLICK DERECHO → borrar nota
     if (e.button === 2) {
       if (noteIndex !== -1) {
         setNotes((prev) => prev.filter((_, i) => i !== noteIndex));
@@ -120,6 +157,21 @@ const PianoRoll = () => {
       return;
     }
 
+    // 🔴 SHIFT + CLICK → mover playhead
+    if (e.shiftKey) {
+      setCurrentStep(Math.max(0, Math.min(totalSteps - 1, step)));
+      setDraggingPlayhead(true);
+      return;
+    }
+
+    // CLICK sobre el playhead (zona roja) → arrastrarlo
+    const playheadX = currentStep * stepWidth;
+    if (Math.abs(x - playheadX) < 6) {
+      setDraggingPlayhead(true);
+      return;
+    }
+
+    // SI HAY NOTA → comportamiento normal
     if (noteIndex !== -1) {
       const note = notes[noteIndex];
       const endBoundary = (note.start + note.length) * stepWidth;
@@ -134,12 +186,21 @@ const PianoRoll = () => {
 
       setDraggingNoteIndex(noteIndex);
     } else {
-      setNotes((prev) => [...prev, { pitch, start: step, length: 1 }]);
+      const newNote = { pitch, start: step, length: 1 };
+      setNotes((prev) => [...prev, newNote]);
+      playNote(pitch);
     }
   };
 
   const handleMouseMove = (e) => {
     const { x, y } = getMousePos(e);
+
+    // 🎯 DRAG PLAYHEAD
+    if (draggingPlayhead) {
+      const step = Math.floor(x / stepWidth);
+      setCurrentStep(Math.max(0, Math.min(totalSteps - 1, step)));
+      return;
+    }
 
     if (draggingNoteIndex !== null) {
       const step = Math.floor(x / stepWidth);
@@ -155,37 +216,26 @@ const PianoRoll = () => {
           }
 
           if (dragType === "move") {
+            const newPitch = Math.max(0, Math.min(totalKeys - 1, pitch));
+            if (newPitch !== note.pitch) playNote(newPitch);
+
             return {
               ...note,
               start: Math.max(0, step),
-              pitch: Math.max(0, Math.min(totalKeys - 1, pitch)),
+              pitch: newPitch,
             };
           }
 
           return note;
         })
       );
-    } else {
-      const noteIndex = findNoteAtPosition(x, y);
-
-      if (noteIndex !== -1) {
-        const note = notes[noteIndex];
-        const endBoundary = (note.start + note.length) * stepWidth;
-
-        if (Math.abs(x - endBoundary) < 6) {
-          setCursor("ew-resize");
-        } else {
-          setCursor("pointer");
-        }
-      } else {
-        setCursor("default");
-      }
     }
   };
 
   const handleMouseUp = () => {
     setDraggingNoteIndex(null);
     setDragType(null);
+    setDraggingPlayhead(false);
     setCursor("default");
   };
 
@@ -199,17 +249,14 @@ const PianoRoll = () => {
       ctx.moveTo(x, 0);
       ctx.lineTo(x, totalHeight);
 
-      if (i % totalStepsPerBar === 0) {
-        ctx.strokeStyle = "rgba(255,255,255,0.18)";
-        ctx.lineWidth = 2;
-      } else if (i % stepsPerBeat === 0) {
-        ctx.strokeStyle = "rgba(255,255,255,0.10)";
-        ctx.lineWidth = 1.2;
-      } else {
-        ctx.strokeStyle = "rgba(255,255,255,0.05)";
-        ctx.lineWidth = 1;
-      }
+      ctx.strokeStyle =
+        i % totalStepsPerBar === 0
+          ? "rgba(255,255,255,0.18)"
+          : i % stepsPerBeat === 0
+          ? "rgba(255,255,255,0.10)"
+          : "rgba(255,255,255,0.05)";
 
+      ctx.lineWidth = i % totalStepsPerBar === 0 ? 2 : 1;
       ctx.stroke();
     }
 
@@ -219,11 +266,17 @@ const PianoRoll = () => {
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(totalWidth, y);
-
       ctx.strokeStyle = "rgba(255,255,255,0.06)";
-      ctx.lineWidth = 1;
       ctx.stroke();
     }
+
+    // 🔴 PLAYHEAD
+    ctx.beginPath();
+    ctx.moveTo(currentStep * stepWidth, 0);
+    ctx.lineTo(currentStep * stepWidth, totalHeight);
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    ctx.stroke();
   };
 
   const drawNotes = (ctx) => {
@@ -245,7 +298,7 @@ const PianoRoll = () => {
 
     drawGrid(ctx);
     drawNotes(ctx);
-  }, [notes, zoom]);
+  }, [notes, zoom, currentStep]);
 
   return (
     <div
@@ -256,9 +309,15 @@ const PianoRoll = () => {
         flexDirection: "column",
       }}
     >
+      {/* ▶ CONTROLES */}
+      <div style={{ padding: 10 }}>
+        <button onClick={() => setIsPlaying((prev) => !prev)}>
+          {isPlaying ? "Stop" : "Play"}
+        </button>
+      </div>
+
       <div style={{ flex: 1, overflowY: "auto" }}>
         <div style={{ display: "flex", minHeight: totalHeight }}>
-          {/* 🎹 PIANO */}
           <div style={{ width: pianoWidth }}>
             {Array.from({ length: totalKeys }).map((_, i) => {
               const reversedIndex = totalKeys - i - 1;
@@ -278,7 +337,6 @@ const PianoRoll = () => {
             })}
           </div>
 
-          {/* 🎼 GRID */}
           <div style={{ flex: 1, overflowX: "auto" }} onWheel={handleWheel}>
             <canvas
               ref={canvasRef}
