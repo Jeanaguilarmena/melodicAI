@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 
-const PianoRoll = () => {
+const PianoRoll = ({ composition }) => {
   const canvasRef = useRef(null);
 
   // CONFIG
@@ -17,6 +17,33 @@ const PianoRoll = () => {
   const totalSteps = totalBars * totalStepsPerBar;
 
   const bpm = 120;
+
+  const flattenComposition = (composition) => {
+    const harmonyNotes = composition.harmony.flatMap((block) => {
+      const { start, bass, chord } = block;
+
+      return [
+        { ...bass, start, source: "harmony" },
+        ...chord.map((note) => ({
+          ...note,
+          start,
+          source: "harmony",
+        })),
+      ];
+    });
+
+    const aiNotes = composition.melody.ai.map((note) => ({
+      ...note,
+      source: "ai",
+    }));
+
+    const userNotes = composition.melody.user.map((note) => ({
+      ...note,
+      source: "user",
+    }));
+
+    return [...harmonyNotes, ...aiNotes, ...userNotes];
+  };
 
   const [zoom, setZoom] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -48,10 +75,7 @@ const PianoRoll = () => {
 
   const startOctave = 3;
 
-  const [notes, setNotes] = useState([
-    { pitch: 10, start: 0, length: 8 },
-    { pitch: 14, start: 16, length: 16 },
-  ]);
+  const [notes, setNotes] = useState(() => flattenComposition(composition));
 
   const [draggingNoteIndex, setDraggingNoteIndex] = useState(null);
   const [dragType, setDragType] = useState(null);
@@ -83,7 +107,7 @@ const PianoRoll = () => {
     }
   };
 
-  // 🎵 MOTOR DE REPRODUCCIÓN
+  // Reproduction motor
   useEffect(() => {
     if (!isPlaying) return;
 
@@ -94,7 +118,7 @@ const PianoRoll = () => {
       setCurrentStep((prevStep) => {
         const nextStep = (prevStep + 1) % totalSteps;
 
-        // 🔊 disparar notas que empiezan en este step
+        // play notes that start at this step
         notes.forEach((note) => {
           if (note.start === nextStep) {
             playNote(note.pitch);
@@ -149,7 +173,7 @@ const PianoRoll = () => {
 
     const noteIndex = findNoteAtPosition(x, y);
 
-    // CLICK DERECHO → borrar nota
+    // right click
     if (e.button === 2) {
       if (noteIndex !== -1) {
         setNotes((prev) => prev.filter((_, i) => i !== noteIndex));
@@ -157,21 +181,21 @@ const PianoRoll = () => {
       return;
     }
 
-    // 🔴 SHIFT + CLICK → mover playhead
+    // 🔴 SHIFT + CLICK → move playhead
     if (e.shiftKey) {
       setCurrentStep(Math.max(0, Math.min(totalSteps - 1, step)));
       setDraggingPlayhead(true);
       return;
     }
 
-    // CLICK sobre el playhead (zona roja) → arrastrarlo
+    // CLICK on playhead → drag playhead
     const playheadX = currentStep * stepWidth;
     if (Math.abs(x - playheadX) < 6) {
       setDraggingPlayhead(true);
       return;
     }
 
-    // SI HAY NOTA → comportamiento normal
+    // if there is a note → normal drag (move or resize)
     if (noteIndex !== -1) {
       const note = notes[noteIndex];
       const endBoundary = (note.start + note.length) * stepWidth;
@@ -186,7 +210,7 @@ const PianoRoll = () => {
 
       setDraggingNoteIndex(noteIndex);
     } else {
-      const newNote = { pitch, start: step, length: 1 };
+      const newNote = { pitch, start: step, length: 1, source: "user" };
       setNotes((prev) => [...prev, newNote]);
       playNote(pitch);
     }
@@ -195,7 +219,7 @@ const PianoRoll = () => {
   const handleMouseMove = (e) => {
     const { x, y } = getMousePos(e);
 
-    // 🎯 DRAG PLAYHEAD
+    // DRAG PLAYHEAD
     if (draggingPlayhead) {
       const step = Math.floor(x / stepWidth);
       setCurrentStep(Math.max(0, Math.min(totalSteps - 1, step)));
@@ -270,7 +294,7 @@ const PianoRoll = () => {
       ctx.stroke();
     }
 
-    // 🔴 PLAYHEAD
+    // PLAYHEAD
     ctx.beginPath();
     ctx.moveTo(currentStep * stepWidth, 0);
     ctx.lineTo(currentStep * stepWidth, totalHeight);
@@ -284,7 +308,11 @@ const PianoRoll = () => {
       const x = note.start * stepWidth;
       const y = (totalKeys - note.pitch - 1) * rowHeight;
 
-      ctx.fillStyle = "#4da6ff";
+      ctx.fillStyle =
+        note.source === "ai"
+          ? "rgba(180,180,180,0.7)" // grey for AI-generated notes
+          : "#4da6ff"; // blue for usee=r notes
+
       ctx.fillRect(x, y, note.length * stepWidth, rowHeight);
     });
   };
@@ -309,7 +337,6 @@ const PianoRoll = () => {
         flexDirection: "column",
       }}
     >
-      {/* ▶ CONTROLES */}
       <div style={{ padding: 10 }}>
         <button onClick={() => setIsPlaying((prev) => !prev)}>
           {isPlaying ? "Stop" : "Play"}
