@@ -1,9 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
 
-const PianoRoll = ({ composition }) => {
+const PianoRoll = ({ composition, onCompositionChange, onAiRequest }) => {
   const canvasRef = useRef(null);
 
-  // CONFIG
+  //Initial configuration
   const beatsPerBar = 4;
   const stepsPerBeat = 4;
   const totalBars = 8;
@@ -45,10 +45,28 @@ const PianoRoll = ({ composition }) => {
     return [...harmonyNotes, ...aiNotes, ...userNotes];
   };
 
+  const [notes, setNotes] = useState(() => flattenComposition(composition));
+
   const [zoom, setZoom] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [draggingPlayhead, setDraggingPlayhead] = useState(false);
+
+  const [draggingNoteIndex, setDraggingNoteIndex] = useState(null);
+  const [dragType, setDragType] = useState(null);
+  const [cursor, setCursor] = useState("default");
+  const [pendingAiPayload, setPendingAiPayload] = useState(null);
+  const deletedAiNoteRef = useRef(false);
+
+  useEffect(() => {
+    if (!pendingAiPayload) return;
+
+    if (onAiRequest) {
+      onAiRequest(pendingAiPayload);
+    }
+
+    setPendingAiPayload(null);
+  }, [pendingAiPayload, onAiRequest]);
 
   const baseStepWidth = 20;
   const stepWidth = baseStepWidth * zoom;
@@ -75,13 +93,24 @@ const PianoRoll = ({ composition }) => {
 
   const startOctave = 3;
 
-  const [notes, setNotes] = useState(() => flattenComposition(composition));
-
-  const [draggingNoteIndex, setDraggingNoteIndex] = useState(null);
-  const [dragType, setDragType] = useState(null);
-  const [cursor, setCursor] = useState("default");
-
   const audioRefs = useRef({});
+
+  // Sync when composition changes
+  useEffect(() => {
+    setNotes(flattenComposition(composition));
+  }, [composition]);
+
+  const emitChange = (updatedNotes) => {
+    if (!onCompositionChange) return;
+
+    const ai = updatedNotes.filter((n) => n.source === "ai");
+    const user = updatedNotes.filter((n) => n.source === "user");
+
+    onCompositionChange({
+      ...composition,
+      melody: { ai, user },
+    });
+  };
 
   const pitchToNoteName = (pitch) => {
     const noteIndex = pitch % 12;
@@ -98,16 +127,13 @@ const PianoRoll = ({ composition }) => {
     }
 
     const audio = audioRefs.current[noteName];
-
     try {
       audio.currentTime = 0;
       audio.play();
-    } catch (err) {
-      console.log("Audio blocked:", err);
-    }
+    } catch {}
   };
 
-  // Reproduction motor
+  // Playback engine
   useEffect(() => {
     if (!isPlaying) return;
 
@@ -115,27 +141,21 @@ const PianoRoll = ({ composition }) => {
     const secondsPerStep = secondsPerBeat / stepsPerBeat;
 
     const interval = setInterval(() => {
-      setCurrentStep((prevStep) => {
-        const nextStep = (prevStep + 1) % totalSteps;
+      setCurrentStep((prev) => {
+        const next = (prev + 1) % totalSteps;
 
-        // play notes that start at this step
         notes.forEach((note) => {
-          if (note.start === nextStep) {
+          if (note.start === next) {
             playNote(note.pitch);
           }
         });
 
-        return nextStep;
+        return next;
       });
     }, secondsPerStep * 1000);
 
     return () => clearInterval(interval);
   }, [isPlaying, notes]);
-
-  const isBlackKey = (noteIndex) => {
-    const pattern = [1, 3, 6, 8, 10];
-    return pattern.includes(noteIndex % 12);
-  };
 
   const handleWheel = (e) => {
     if (e.ctrlKey) {
@@ -170,32 +190,40 @@ const PianoRoll = ({ composition }) => {
     const { x, y } = getMousePos(e);
     const step = Math.floor(x / stepWidth);
     const pitch = totalKeys - Math.floor(y / rowHeight) - 1;
-
     const noteIndex = findNoteAtPosition(x, y);
 
-    // right click
+    console.log("noteIndex:", noteIndex);
+    console.log("deleted flag:", deletedAiNoteRef.current);
+
+    console.log("mouse button:", e.button);
+
+    // RIGHT CLICK → DELETE
     if (e.button === 2) {
-      if (noteIndex !== -1) {
-        setNotes((prev) => prev.filter((_, i) => i !== noteIndex));
+      if (noteIndex !== -1 && notes[noteIndex].source !== "harmony") {
+        const noteToDelete = notes[noteIndex];
+
+        const updated = notes.filter((_, i) => i !== noteIndex);
+        setNotes(updated);
+
+        // If we just deleted an AI note, we set a flag and wait for the next user note to trigger the AI request with the cut context. If we deleted a user note, we can immediately emit the change.
+        if (noteToDelete.source === "ai") {
+          deletedAiNoteRef.current = true;
+          console.log("AI note deleted → waiting for user note...");
+        } else {
+          emitChange(updated);
+        }
       }
       return;
     }
 
-    // 🔴 SHIFT + CLICK → move playhead
+    // SHIFT → Move playhead
     if (e.shiftKey) {
       setCurrentStep(Math.max(0, Math.min(totalSteps - 1, step)));
       setDraggingPlayhead(true);
       return;
     }
 
-    // CLICK on playhead → drag playhead
-    const playheadX = currentStep * stepWidth;
-    if (Math.abs(x - playheadX) < 6) {
-      setDraggingPlayhead(true);
-      return;
-    }
-
-    // if there is a note → normal drag (move or resize)
+    // DRAG EXISTING NOTE
     if (noteIndex !== -1) {
       const note = notes[noteIndex];
       const endBoundary = (note.start + note.length) * stepWidth;
@@ -209,17 +237,53 @@ const PianoRoll = ({ composition }) => {
       }
 
       setDraggingNoteIndex(noteIndex);
-    } else {
-      const newNote = { pitch, start: step, length: 1, source: "user" };
-      setNotes((prev) => [...prev, newNote]);
-      playNote(pitch);
+      return;
     }
+
+    // ADD NEW USER NOTE
+    const newNote = {
+      pitch,
+      start: step,
+      length: 1,
+      source: "user",
+    };
+
+    setNotes((prevNotes) => {
+      const updated = [...prevNotes, newNote];
+
+      if (deletedAiNoteRef.current) {
+        const cutTime = newNote.start;
+
+        const userNotes = updated.filter((n) => n.source === "user");
+
+        const aiContext = updated.filter(
+          (n) => n.source === "ai" && n.start < cutTime
+        );
+
+        const payload = {
+          userNotes,
+          aiContext,
+          cutTime,
+        };
+
+        console.log("Triggering AI request:", payload);
+
+        setPendingAiPayload(payload);
+
+        deletedAiNoteRef.current = false;
+      } else {
+        emitChange(updated);
+      }
+
+      return updated;
+    });
+
+    playNote(pitch);
   };
 
   const handleMouseMove = (e) => {
     const { x, y } = getMousePos(e);
 
-    // DRAG PLAYHEAD
     if (draggingPlayhead) {
       const step = Math.floor(x / stepWidth);
       setCurrentStep(Math.max(0, Math.min(totalSteps - 1, step)));
@@ -235,18 +299,17 @@ const PianoRoll = ({ composition }) => {
           if (i !== draggingNoteIndex) return note;
 
           if (dragType === "resize") {
-            const newLength = Math.max(1, step - note.start + 1);
-            return { ...note, length: newLength };
+            return {
+              ...note,
+              length: Math.max(1, step - note.start + 1),
+            };
           }
 
           if (dragType === "move") {
-            const newPitch = Math.max(0, Math.min(totalKeys - 1, pitch));
-            if (newPitch !== note.pitch) playNote(newPitch);
-
             return {
               ...note,
               start: Math.max(0, step),
-              pitch: newPitch,
+              pitch: Math.max(0, Math.min(totalKeys - 1, pitch)),
             };
           }
 
@@ -257,6 +320,10 @@ const PianoRoll = ({ composition }) => {
   };
 
   const handleMouseUp = () => {
+    if (draggingNoteIndex !== null) {
+      emitChange(notes);
+    }
+
     setDraggingNoteIndex(null);
     setDragType(null);
     setDraggingPlayhead(false);
@@ -268,7 +335,6 @@ const PianoRoll = ({ composition }) => {
 
     for (let i = 0; i <= totalSteps; i++) {
       const x = Math.round(i * stepWidth) + 0.5;
-
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, totalHeight);
@@ -286,7 +352,6 @@ const PianoRoll = ({ composition }) => {
 
     for (let i = 0; i <= totalKeys; i++) {
       const y = Math.round(i * rowHeight) + 0.5;
-
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(totalWidth, y);
@@ -294,7 +359,6 @@ const PianoRoll = ({ composition }) => {
       ctx.stroke();
     }
 
-    // PLAYHEAD
     ctx.beginPath();
     ctx.moveTo(currentStep * stepWidth, 0);
     ctx.lineTo(currentStep * stepWidth, totalHeight);
@@ -310,8 +374,10 @@ const PianoRoll = ({ composition }) => {
 
       ctx.fillStyle =
         note.source === "ai"
-          ? "rgba(180,180,180,0.7)" // grey for AI-generated notes
-          : "#4da6ff"; // blue for usee=r notes
+          ? "rgba(180,180,180,0.7)"
+          : note.source === "harmony"
+          ? "rgba(120,120,120,0.5)"
+          : "#4da6ff";
 
       ctx.fillRect(x, y, note.length * stepWidth, rowHeight);
     });
@@ -348,7 +414,7 @@ const PianoRoll = ({ composition }) => {
           <div style={{ width: pianoWidth }}>
             {Array.from({ length: totalKeys }).map((_, i) => {
               const reversedIndex = totalKeys - i - 1;
-              const black = isBlackKey(reversedIndex);
+              const isBlack = [1, 3, 6, 8, 10].includes(reversedIndex % 12);
 
               return (
                 <div
@@ -356,7 +422,7 @@ const PianoRoll = ({ composition }) => {
                   onMouseDown={() => playNote(reversedIndex)}
                   style={{
                     height: rowHeight,
-                    background: black ? "#111" : "#ddd",
+                    background: isBlack ? "#111" : "#ddd",
                     cursor: "pointer",
                   }}
                 />
