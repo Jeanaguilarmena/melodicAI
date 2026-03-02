@@ -1,6 +1,7 @@
 import { Box, Card } from "@mui/material";
 import React, { useState } from "react";
 import PianoRoll from "../../components/pianoRoll/pianoRoll";
+import { motion } from "framer-motion";
 
 function ProducePage() {
   // This is hardcoded for now, but in a real app this would be loaded from a server or created by the user
@@ -146,22 +147,48 @@ function ProducePage() {
   };
 
   return (
-    <Box>
-      <Card
-        sx={{
-          margin: "20px",
-          marginTop: "80px",
-          padding: "20px",
-          backgroundColor: "#f5f5f5",
-          borderRadius: 4,
-        }}
-      >
-        <PianoRoll
-          composition={composition}
-          onCompositionChange={setComposition}
-          onAiRequest={handleAiRequest}
-        />
-      </Card>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        px: 4,
+        pt: 14,
+        pb: 8,
+        background: "linear-gradient(to bottom, #f8f8f8, #f2f2f2)",
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <Box sx={{ width: "100%", maxWidth: 1200 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9 }}
+        >
+          <Card
+            sx={{
+              borderRadius: "28px",
+              px: 4,
+              py: 5,
+
+              backdropFilter: "blur(20px)",
+              background: "rgba(255,255,255,0.75)",
+              border: "1px solid rgba(255,255,255,0.6)",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.06)",
+
+              transition: "all 0.3s ease",
+              "&:hover": {
+                boxShadow: "0 25px 70px rgba(0,0,0,0.08)",
+              },
+            }}
+          >
+            <PianoRoll
+              composition={composition}
+              onCompositionChange={setComposition}
+              onAiRequest={handleAiRequest}
+            />
+          </Card>
+        </motion.div>
+      </Box>
     </Box>
   );
 }

@@ -1,4 +1,19 @@
 import React, { useRef, useEffect, useState } from "react";
+import {
+  Box,
+  Card,
+  CardContent,
+  IconButton,
+  Typography,
+  Paper,
+  Divider,
+} from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import StopIcon from "@mui/icons-material/Stop";
+import { motion } from "framer-motion";
+
+const MotionCard = motion(Card);
 
 const PianoRoll = ({ composition, onCompositionChange, onAiRequest }) => {
   const canvasRef = useRef(null);
@@ -395,54 +410,146 @@ const PianoRoll = ({ composition, onCompositionChange, onAiRequest }) => {
   }, [notes, zoom, currentStep]);
 
   return (
-    <div
-      style={{
-        height: "500px",
-        background: "#1e1e1e",
+    <Box
+      sx={{
+        height: 520,
         display: "flex",
-        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "radial-gradient(circle at 20% 20%, #2a2a2a, #121212 70%)",
+        p: 4,
       }}
     >
-      <div style={{ padding: 10 }}>
-        <button onClick={() => setIsPlaying((prev) => !prev)}>
-          {isPlaying ? "Stop" : "Play"}
-        </button>
-      </div>
+      <MotionCard
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        sx={{
+          width: "100%",
+          maxWidth: 1200,
+          height: 500,
+          borderRadius: "28px",
+          backdropFilter: "blur(30px)",
+          background: alpha("#ffffff", 0.05),
+          border: `1px solid ${alpha("#ffffff", 0.08)}`,
+          boxShadow: "0 30px 80px rgba(0,0,0,0.6)",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        {/* Header */}
+        <Box
+          sx={{
+            px: 3,
+            py: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography
+            sx={{
+              color: "#fff",
+              fontWeight: 500,
+              letterSpacing: 0.5,
+              opacity: 0.85,
+            }}
+          >
+            Piano Roll
+          </Typography>
 
-      <div style={{ flex: 1, overflowY: "auto" }}>
-        <div style={{ display: "flex", minHeight: totalHeight }}>
-          <div style={{ width: pianoWidth }}>
-            {Array.from({ length: totalKeys }).map((_, i) => {
-              const reversedIndex = totalKeys - i - 1;
-              const isBlack = [1, 3, 6, 8, 10].includes(reversedIndex % 12);
+          <IconButton
+            onClick={() => setIsPlaying((prev) => !prev)}
+            sx={{
+              width: 46,
+              height: 46,
+              borderRadius: "16px",
+              background: alpha("#ffffff", 0.08),
+              transition: "all 0.25s ease",
+              "&:hover": {
+                background: alpha("#ffffff", 0.15),
+                transform: "scale(1.05)",
+              },
+            }}
+          >
+            {isPlaying ? (
+              <StopIcon sx={{ color: "#fff" }} />
+            ) : (
+              <PlayArrowIcon sx={{ color: "#fff" }} />
+            )}
+          </IconButton>
+        </Box>
 
-              return (
-                <div
-                  key={i}
-                  onMouseDown={() => playNote(reversedIndex)}
-                  style={{
-                    height: rowHeight,
-                    background: isBlack ? "#111" : "#ddd",
-                    cursor: "pointer",
-                  }}
-                />
-              );
-            })}
-          </div>
+        <Divider sx={{ borderColor: alpha("#ffffff", 0.08) }} />
 
-          <div style={{ flex: 1, overflowX: "auto" }} onWheel={handleWheel}>
-            <canvas
-              ref={canvasRef}
-              style={{ cursor }}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onContextMenu={(e) => e.preventDefault()}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+        {/* Scrollable Piano Area — FUNCIONALIDAD INTACTA */}
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              minHeight: totalHeight,
+            }}
+          >
+            {/* Piano Keys — MISMO TAMAÑO */}
+            <Box
+              sx={{
+                width: pianoWidth,
+              }}
+            >
+              {Array.from({ length: totalKeys }).map((_, i) => {
+                const reversedIndex = totalKeys - i - 1;
+                const isBlack = [1, 3, 6, 8, 10].includes(reversedIndex % 12);
+
+                return (
+                  <Box
+                    key={i}
+                    onMouseDown={() => playNote(reversedIndex)}
+                    sx={{
+                      height: rowHeight,
+                      background: isBlack
+                        ? alpha("#000", 0.7)
+                        : alpha("#fff", 0.9),
+                      transition: "background 0.15s ease",
+                      cursor: "pointer",
+                      "&:hover": {
+                        background: isBlack ? alpha("#000", 0.9) : "#ffffff",
+                      },
+                    }}
+                  />
+                );
+              })}
+            </Box>
+
+            {/* Canvas Scroll — NO SE TOCA NADA */}
+            <Box
+              sx={{
+                flex: 1,
+                overflowX: "auto",
+              }}
+              onWheel={handleWheel}
+            >
+              <canvas
+                ref={canvasRef}
+                style={{
+                  cursor,
+                  display: "block",
+                }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onContextMenu={(e) => e.preventDefault()}
+              />
+            </Box>
+          </Box>
+        </Box>
+      </MotionCard>
+    </Box>
   );
 };
 
