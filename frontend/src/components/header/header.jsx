@@ -2,19 +2,21 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "../../context/authContext";
 
 const MotionBox = motion(Box);
 
 function Header() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
 
   const headerElements = [
-    { label: "Home", path: "/" },
-    { label: "Profile", path: "/profile" },
-    { label: "Produce", path: "/produce" },
-    { label: "play", path: "/play" },
-    { label: "Logout", path: "login" },
+    { label: "Home", path: "/home", function: () => navigate("/home") },
+    { label: "Profile", path: "profile", function: () => navigate("profile") },
+    { label: "Produce", path: "produce", function: () => navigate("produce") },
+    { label: "Play", path: "play", function: () => navigate("play") },
+    { label: "Logout", path: "login", function: logout },
   ];
 
   return (
@@ -55,7 +57,7 @@ function Header() {
         }}
       >
         <Typography
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/home")}
           sx={{
             fontWeight: 600,
             fontSize: "1rem",
@@ -83,7 +85,7 @@ function Header() {
             return (
               <Typography
                 key={element.label}
-                onClick={() => navigate(element.path)}
+                onClick={element.function}
                 sx={{
                   fontSize: "0.95rem",
                   fontWeight: 500,
