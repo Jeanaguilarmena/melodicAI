@@ -11,7 +11,7 @@ const MotionBox = motion(Box);
 function Profile() {
   const navigate = useNavigate();
   function handleSeeAllProjects() {
-    navigate("/projects");
+    navigate("/home/projects");
   }
   const projects = ["Midnight Echo", "Soft Horizon", "Analog Dreams"];
   return (

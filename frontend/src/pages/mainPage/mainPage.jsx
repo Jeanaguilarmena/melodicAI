@@ -9,7 +9,7 @@ const MotionCard = motion(Card);
 function MainPage() {
   const navigate = useNavigate();
   function handleStartCreating() {
-    navigate("/produce");
+    navigate("/home/produce");
   }
 
   return (
