@@ -4,6 +4,9 @@ import { motion } from "framer-motion";
 import profilePhoto from "../../assets/profilePhoto.png";
 import RecentProjects from "../recentProjects/recentProjects";
 import { useNavigate } from "react-router-dom";
+import { fetchUserProfile } from "../../api/user.api";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../../context/authContext";
 
 const MotionCard = motion(Card);
 const MotionBox = motion(Box);
@@ -14,6 +17,33 @@ function Profile() {
     navigate("/home/projects");
   }
   const projects = ["Midnight Echo", "Soft Horizon", "Analog Dreams"];
+
+  const { user } = useAuth();
+  console.log("THIS IS THE USER", user);
+
+  const {
+    data: userProfile,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["userProfile", user?.uid],
+    queryFn: () => fetchUserProfile(user),
+    enabled: !!user,
+  });
+
+  console.log("THIS IS THE USER PROFILE,", userProfile);
+
+  if (isLoading) {
+    return <Box sx={{ p: 4 }}>👤 Loading profile...</Box>;
+  }
+
+  if (isError) {
+    return <Box sx={{ p: 4, color: "red" }}>Error loading profile</Box>;
+  }
+
+  if (!userProfile) {
+    return <Box sx={{ p: 4 }}>👤 Loading profile...</Box>;
+  }
   return (
     <Box
       sx={{
@@ -71,11 +101,11 @@ function Profile() {
                 color: "#1d1d1f",
               }}
             >
-              Jeannatar
+              {userProfile.artisticName}
             </Typography>
 
             <Typography sx={{ color: "#6e6e73", mt: 1 }}>
-              Music Producer · Costa Rica
+              {userProfile.occupation} · {userProfile.country}
             </Typography>
 
             <Button

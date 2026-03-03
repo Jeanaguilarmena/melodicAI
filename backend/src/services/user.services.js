@@ -29,6 +29,9 @@ export const createUser = async (firebaseUser) => {
         email: firebaseUser.email,
         name: firebaseUser.displayName || "No Name",
         photoURL: firebaseUser.photoURL || null,
+        artisticName: firebaseUser.artisticName || "No Artistic Name",
+        country: firebaseUser.country || "",
+        ocupation: firebaseUser.ocupation || "",
         createdAt: new Date(),
     };
 

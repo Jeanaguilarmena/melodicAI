@@ -9,26 +9,30 @@ import ProjectsPage from "./pages/projectsPage/projectsPage";
 import LoginPage from "./pages/loginPage/loginPage";
 import { AuthProvider } from "./context/authContext";
 import AuthApp from "./AuthApp";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function App() {
+  const queryClient = new QueryClient();
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
 
-          <Route path="/" element={<AuthApp />}>
-            <Route path="home" element={<HeaderPage />}>
-              <Route index element={<MainPage />} />
-              <Route path="profile" element={<ProfilePage />} />
-              <Route path="produce" element={<ProducePage />} />
-              <Route path="play" element={<PlayPage />} />
-              <Route path="projects" element={<ProjectsPage />} />
+            <Route path="/" element={<AuthApp />}>
+              <Route path="home" element={<HeaderPage />}>
+                <Route index element={<MainPage />} />
+                <Route path="profile" element={<ProfilePage />} />
+                <Route path="produce" element={<ProducePage />} />
+                <Route path="play" element={<PlayPage />} />
+                <Route path="projects" element={<ProjectsPage />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 
