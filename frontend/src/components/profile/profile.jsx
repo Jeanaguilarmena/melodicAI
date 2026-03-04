@@ -145,10 +145,10 @@ function Profile() {
           }}
         >
           {[
-            { label: "Projects", value: 12 },
-            { label: "Melodies Generated", value: 48 },
-            { label: "Favorite Genre", value: "Lo-fi" },
-            { label: "Hours Created", value: "3h 42m" },
+            { label: "Projects", value: userProfile.projects },
+            { label: "primaryGenre", value: userProfile.primaryGenre },
+            { label: "secondaryGenre", value: userProfile.secondaryGenre },
+            { label: "instrument", value: userProfile.instrument },
           ].map((stat) => (
             <Box key={stat.label} sx={{ textAlign: "center" }}>
               <Typography
