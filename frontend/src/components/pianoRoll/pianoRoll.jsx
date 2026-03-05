@@ -22,6 +22,7 @@ const PianoRoll = ({ composition, onCompositionChange, onAiRequest }) => {
   const beatsPerBar = 4;
   const stepsPerBeat = 4;
   const totalBars = 8;
+  const TONAL_OFFSET = 0;
 
   const octaves = 4;
   const keysPerOctave = 12;
@@ -91,22 +92,7 @@ const PianoRoll = ({ composition, onCompositionChange, onAiRequest }) => {
 
   const pianoWidth = 80;
 
-  const noteNames = [
-    "C",
-    "Csharp",
-    "D",
-    "Dsharp",
-    "E",
-    "F",
-    "Fsharp",
-    "G",
-    "Gsharp",
-    "A",
-    "Asharp",
-    "B",
-  ];
-
-  const startOctave = 3;
+  const startOctave = 2;
 
   const audioRefs = useRef({});
 
@@ -127,9 +113,27 @@ const PianoRoll = ({ composition, onCompositionChange, onAiRequest }) => {
     });
   };
 
+  const noteNames = [
+    "C",
+    "Csharp",
+    "D",
+    "Dsharp",
+    "E",
+    "F",
+    "Fsharp",
+    "G",
+    "Gsharp",
+    "A",
+    "Asharp",
+    "B",
+  ];
+
   const pitchToNoteName = (pitch) => {
-    const noteIndex = pitch % 12;
-    const octave = startOctave + Math.floor(pitch / 12);
+    const midiPitch = pitch + TONAL_OFFSET;
+
+    const noteIndex = midiPitch % 12;
+    const octave = startOctave + Math.floor(midiPitch / 12);
+
     return `${noteNames[noteIndex]}${octave}`;
   };
 

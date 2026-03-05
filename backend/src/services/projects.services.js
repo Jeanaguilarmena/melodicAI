@@ -5,8 +5,29 @@ export const getUserProjects = async (id) => {
 
 }
 
-export const getRecentUserProjects = async (id) => {
+export const getRecentUserProjects = async (userId) => {
+    try {
+        const snapshot = await db.collection("projects")
+            .where("userId", "==", userId)
+            .orderBy("createdAt", "desc")
+            .limit(3)
+            .get();
 
+        if (snapshot.empty) {
+            return [];
+        }
+
+        const projects = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data()
+        }))
+
+        return projects
+
+    } catch (error) {
+        console.error("Error fetching recent projects", error)
+        throw error;
+    }
 }
 
 export const saveUserProject = async (userId, project) => {
@@ -29,5 +50,4 @@ export const saveUserProject = async (userId, project) => {
         console.error("Error in saveUserProject service:", error);
         throw error;
     }
-
 }

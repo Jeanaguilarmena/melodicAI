@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import profilePhoto from "../../assets/profilePhoto.png";
 import RecentProjects from "../recentProjects/recentProjects";
 import { useNavigate } from "react-router-dom";
-import { fetchUserProfile } from "../../api/user.api";
+import { fetchUserProfile, fetchRecentProjects } from "../../api/user.api";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../../context/authContext";
 
@@ -22,6 +22,16 @@ function Profile() {
   console.log("THIS IS THE USER", user);
 
   const {
+    data: recentProjects,
+    isLoading: recentProjectsLoading,
+    isError: recentProjectsError,
+  } = useQuery({
+    queryKey: ["recentProjects", user?.uid],
+    queryFn: () => fetchRecentProjects(user),
+    enabled: !!user,
+  });
+
+  const {
     data: userProfile,
     isLoading,
     isError,
@@ -32,12 +42,13 @@ function Profile() {
   });
 
   console.log("THIS IS THE USER PROFILE,", userProfile);
+  console.log("THIS ARE THE RECENT PROJECTS", recentProjects);
 
-  if (isLoading) {
+  if (isLoading || recentProjectsLoading) {
     return <Box sx={{ p: 4 }}>👤 Loading profile...</Box>;
   }
 
-  if (isError) {
+  if (isError || recentProjectsError) {
     return <Box sx={{ p: 4, color: "red" }}>Error loading profile</Box>;
   }
 
@@ -187,8 +198,8 @@ function Profile() {
         </Typography>
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          {projects.map((project) => (
-            <RecentProjects key={project} project={project} />
+          {recentProjects.map((project) => (
+            <RecentProjects key={project} project={project.name} />
           ))}
         </Box>
 

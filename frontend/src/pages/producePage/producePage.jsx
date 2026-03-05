@@ -10,127 +10,121 @@ function ProducePage() {
   const [composition, setComposition] = useState({
     harmony: [
       {
-        name: "Am",
+        name: "Em",
         start: 0,
-        bass: { pitch: 0, length: 16 },
+        bass: { pitch: 4, length: 16 }, // E2 aprox
         chord: [
-          { pitch: 12, length: 16 },
           { pitch: 16, length: 16 },
-          { pitch: 19, length: 16 },
+          { pitch: 19, length: 16 }, // G +12
+          { pitch: 23, length: 16 }, // B +12
         ],
       },
       {
-        name: "F",
+        name: "G",
         start: 16,
-        bass: { pitch: 2, length: 16 },
+        bass: { pitch: 7, length: 16 },
         chord: [
-          { pitch: 14, length: 16 },
-          { pitch: 17, length: 16 },
-          { pitch: 21, length: 16 },
+          { pitch: 19, length: 16 },
+          { pitch: 23, length: 16 }, // B +12
+          { pitch: 26, length: 16 }, // D +12
         ],
       },
       {
-        name: "C",
+        name: "D",
         start: 32,
-        bass: { pitch: 4, length: 16 },
-        chord: [
-          { pitch: 16, length: 16 },
-          { pitch: 19, length: 16 },
-          { pitch: 23, length: 16 },
-        ],
-      },
-      {
-        name: "G",
-        start: 48,
-        bass: { pitch: 5, length: 16 },
-        chord: [
-          { pitch: 17, length: 16 },
-          { pitch: 21, length: 16 },
-          { pitch: 24, length: 16 },
-        ],
-      },
-      {
-        name: "Am",
-        start: 64,
-        bass: { pitch: 0, length: 16 },
-        chord: [
-          { pitch: 12, length: 16 },
-          { pitch: 16, length: 16 },
-          { pitch: 19, length: 16 },
-        ],
-      },
-      {
-        name: "F",
-        start: 80,
         bass: { pitch: 2, length: 16 },
         chord: [
           { pitch: 14, length: 16 },
-          { pitch: 17, length: 16 },
-          { pitch: 21, length: 16 },
+          { pitch: 18, length: 16 }, // F# +12
+          { pitch: 21, length: 16 }, // A +12
         ],
       },
       {
-        name: "C",
-        start: 96,
-        bass: { pitch: 4, length: 16 },
+        name: "A",
+        start: 48,
+        bass: { pitch: 9, length: 16 },
+        chord: [
+          { pitch: 21, length: 16 },
+          { pitch: 25, length: 16 }, // C# +12
+          { pitch: 28, length: 16 }, // E +12
+        ],
+      },
+      {
+        name: "Em",
+        start: 64,
+        bass: { pitch: 4, length: 16 }, // E2 aprox
         chord: [
           { pitch: 16, length: 16 },
-          { pitch: 19, length: 16 },
-          { pitch: 23, length: 16 },
+          { pitch: 19, length: 16 }, // G +12
+          { pitch: 23, length: 16 }, // B +12
         ],
       },
       {
         name: "G",
-        start: 112,
-        bass: { pitch: 5, length: 16 },
+        start: 80,
+        bass: { pitch: 7, length: 16 },
         chord: [
-          { pitch: 17, length: 16 },
+          { pitch: 19, length: 16 },
+          { pitch: 23, length: 16 }, // B +12
+          { pitch: 26, length: 16 }, // D +12
+        ],
+      },
+      {
+        name: "D",
+        start: 96,
+        bass: { pitch: 2, length: 16 },
+        chord: [
+          { pitch: 14, length: 16 },
+          { pitch: 18, length: 16 }, // F# +12
+          { pitch: 21, length: 16 }, // A +12
+        ],
+      },
+      {
+        name: "A",
+        start: 112,
+        bass: { pitch: 9, length: 16 },
+        chord: [
           { pitch: 21, length: 16 },
-          { pitch: 24, length: 16 },
+          { pitch: 25, length: 16 }, // C# +12
+          { pitch: 28, length: 16 }, // E +12
         ],
       },
     ],
     melody: {
       ai: [
-        // Am
-        { pitch: 24, start: 0, length: 4 },
-        { pitch: 26, start: 4, length: 4 },
-        { pitch: 28, start: 8, length: 4 },
-        { pitch: 29, start: 12, length: 4 },
+        // Em (E G B)
+        { pitch: 31, start: 0, length: 8 }, // B
+        { pitch: 28, start: 8, length: 8 }, // G
 
-        // F
-        { pitch: 28, start: 16, length: 4 },
-        { pitch: 26, start: 20, length: 4 },
-        { pitch: 24, start: 24, length: 4 },
-        { pitch: 26, start: 28, length: 4 },
+        // G (G B D)
+        { pitch: 31, start: 16, length: 8 }, // B
+        { pitch: 33, start: 24, length: 8 }, // D
 
-        // C (build tension)
-        { pitch: 28, start: 32, length: 4 },
-        { pitch: 29, start: 36, length: 4 },
-        { pitch: 31, start: 40, length: 4 },
-        { pitch: 33, start: 44, length: 4 },
+        // D (D F# A)
+        { pitch: 33, start: 32, length: 8 }, // D
+        { pitch: 30, start: 40, length: 8 }, // A
 
-        // G (HOOK – emotional lift)
-        { pitch: 36, start: 48, length: 8 },
-        { pitch: 33, start: 56, length: 4 },
-        { pitch: 31, start: 60, length: 4 },
+        // A (A C# E)
+        { pitch: 30, start: 48, length: 8 }, // A
+        { pitch: 28, start: 56, length: 8 }, // E
 
-        // Repeat with variation
-        { pitch: 24, start: 64, length: 4 },
-        { pitch: 26, start: 68, length: 4 },
+        // Repetición tipo Alan Walker (motivo repetido)
+        // Em
+        { pitch: 31, start: 64, length: 8 },
         { pitch: 28, start: 72, length: 8 },
 
-        { pitch: 29, start: 80, length: 4 },
-        { pitch: 28, start: 84, length: 4 },
-        { pitch: 26, start: 88, length: 8 },
+        // G
+        { pitch: 31, start: 80, length: 8 },
+        { pitch: 33, start: 88, length: 8 },
 
-        { pitch: 31, start: 96, length: 4 },
-        { pitch: 33, start: 100, length: 4 },
-        { pitch: 36, start: 104, length: 8 },
+        // D
+        { pitch: 33, start: 96, length: 8 },
+        { pitch: 30, start: 104, length: 8 },
 
-        { pitch: 38, start: 112, length: 4 },
-        { pitch: 36, start: 116, length: 4 },
-        { pitch: 33, start: 120, length: 8 },
+        // A resolución emocional
+        { pitch: 30, start: 112, length: 4 },
+        { pitch: 28, start: 116, length: 4 },
+        { pitch: 31, start: 120, length: 8 },
       ],
       user: [],
     },
