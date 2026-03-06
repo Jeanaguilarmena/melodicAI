@@ -16,7 +16,6 @@ function Profile() {
   function handleSeeAllProjects() {
     navigate("/home/projects");
   }
-  const projects = ["Midnight Echo", "Soft Horizon", "Analog Dreams"];
 
   const { user } = useAuth();
   console.log("THIS IS THE USER", user);
@@ -199,7 +198,7 @@ function Profile() {
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {recentProjects.map((project) => (
-            <RecentProjects key={project} project={project.name} />
+            <RecentProjects key={project} project={project} />
           ))}
         </Box>
 

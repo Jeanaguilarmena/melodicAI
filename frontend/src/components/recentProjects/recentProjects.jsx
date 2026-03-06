@@ -1,13 +1,22 @@
 import React from "react";
 import { Box, Card, Typography } from "@mui/material";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const MotionCard = motion(Card);
 
 function RecentProjects({ project }) {
+  const navigate = useNavigate();
+
+  function handleOpenProject() {
+    navigate(`/home/projects/${project.id}`, {
+      state: { project },
+    });
+  }
+
   return (
     <MotionCard
-      key={project}
+      key={project.name}
       whileHover={{ y: -4 }}
       transition={{ duration: 0.3 }}
       sx={{
@@ -30,7 +39,7 @@ function RecentProjects({ project }) {
             color: "#1d1d1f",
           }}
         >
-          {project}
+          {project.name}
         </Typography>
         <Typography
           sx={{
@@ -44,6 +53,7 @@ function RecentProjects({ project }) {
       </Box>
 
       <Typography
+        onClick={handleOpenProject}
         sx={{
           fontSize: "0.85rem",
           color: "#6e6e73",

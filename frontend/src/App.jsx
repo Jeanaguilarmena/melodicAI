@@ -10,6 +10,7 @@ import LoginPage from "./pages/loginPage/loginPage";
 import { AuthProvider } from "./context/authContext";
 import AuthApp from "./AuthApp";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import OpenProjectPage from "./pages/openProjectPage/openProjectPage";
 
 function App() {
   const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ function App() {
                 <Route path="produce" element={<ProducePage />} />
                 <Route path="play" element={<PlayPage />} />
                 <Route path="projects" element={<ProjectsPage />} />
+                <Route path="projects/:id" element={<OpenProjectPage />} />
               </Route>
             </Route>
           </Routes>

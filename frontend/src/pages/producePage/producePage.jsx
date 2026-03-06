@@ -1,6 +1,8 @@
 import { Box, Button, Card } from "@mui/material";
 import React, { useState } from "react";
 import PianoRoll from "../../components/pianoRoll/pianoRoll";
+
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { useAuth } from "../../context/authContext";
 import SaveProjectModal from "../../components/saveProjectModal/saveProjectModal";
