@@ -3,9 +3,11 @@ import React, { useState } from "react";
 import PianoRoll from "../../components/pianoRoll/pianoRoll";
 import { motion } from "framer-motion";
 import { useAuth } from "../../context/authContext";
+import SaveProjectModal from "../../components/saveProjectModal/saveProjectModal";
 
 function ProducePage() {
   const { user } = useAuth();
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
   // This is hardcoded for now, but in a real app this would be loaded from a server or created by the user
   const [composition, setComposition] = useState({
     harmony: [
@@ -149,8 +151,13 @@ function ProducePage() {
     }));
   };
 
-  async function handleSaveProject() {
+  async function handleSaveProject(projectName) {
     const token = await user.getIdToken();
+
+    const payload = {
+      name: projectName,
+      composition,
+    };
 
     try {
       const res = await fetch("http://localhost:3000/api/projects", {
@@ -159,12 +166,14 @@ function ProducePage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(composition),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
         throw new Error("Error saving project");
       }
+
+      setSaveModalOpen(false);
 
       console.log("Project saved");
     } catch (error) {
@@ -238,7 +247,7 @@ function ProducePage() {
                 transition={{ type: "spring", stiffness: 400, damping: 22 }}
               >
                 <Button
-                  onClick={handleSaveProject}
+                  onClick={() => setSaveModalOpen(true)}
                   sx={{
                     px: 3.5,
                     py: 1,
@@ -272,6 +281,13 @@ function ProducePage() {
               </motion.div>
             </Box>
           </Card>
+          {saveModalOpen && (
+            <SaveProjectModal
+              open={saveModalOpen}
+              onClose={() => setSaveModalOpen(false)}
+              onSave={handleSaveProject}
+            />
+          )}
         </motion.div>
       </Box>
     </Box>
