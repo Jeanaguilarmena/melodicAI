@@ -6,6 +6,11 @@ import { motion } from "framer-motion";
 
 function SaveProjectModal({ open, onClose, onSave }) {
   const [name, setName] = useState("");
+  const [artist, setArtist] = useState("");
+  const [description, setDescription] = useState("");
+  const [bpm, setBpm] = useState("");
+  const [genre, setGenre] = useState("");
+  const [scale, setScale] = useState("");
   const inputRef = useRef();
 
   useEffect(() => {
@@ -15,9 +20,14 @@ function SaveProjectModal({ open, onClose, onSave }) {
   }, [open]);
 
   const handleSave = () => {
-    if (!name.trim()) return;
-    onSave(name);
+    if (!name.trim() || !description.trim() || !artist.trim()) return; // for now I'm gonna use that
+    onSave(name, description, artist, bpm, genre, scale);
     setName("");
+    setDescription("");
+    setArtist("");
+    setBpm("");
+    setGenre("");
+    setScale("");
   };
 
   const handleEnter = (e) => {
@@ -84,6 +94,225 @@ function SaveProjectModal({ open, onClose, onSave }) {
               placeholder="Project name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onKeyDown={handleEnter}
+              fullWidth
+              variant="outlined"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "18px",
+
+                  background: "#f5f5f7",
+
+                  fontSize: "0.95rem",
+
+                  transition: "all 0.28s cubic-bezier(.4,0,.2,1)",
+
+                  "& fieldset": {
+                    border: "1px solid transparent",
+                  },
+
+                  "&:hover": {
+                    background: "#f1f1f4",
+                  },
+
+                  "&.Mui-focused": {
+                    background: "#ffffff",
+
+                    boxShadow: "0 0 0 4px rgba(0,0,0,0.06)",
+
+                    "& fieldset": {
+                      borderColor: "rgba(0,0,0,0.08)",
+                    },
+                  },
+                },
+
+                "& input::placeholder": {
+                  color: "#8e8e93",
+                  opacity: 1,
+                },
+              }}
+            />
+            <TextField
+              inputRef={inputRef}
+              placeholder="Artist"
+              value={artist}
+              onChange={(e) => setArtist(e.target.value)}
+              onKeyDown={handleEnter}
+              fullWidth
+              variant="outlined"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "18px",
+
+                  background: "#f5f5f7",
+
+                  fontSize: "0.95rem",
+
+                  transition: "all 0.28s cubic-bezier(.4,0,.2,1)",
+
+                  "& fieldset": {
+                    border: "1px solid transparent",
+                  },
+
+                  "&:hover": {
+                    background: "#f1f1f4",
+                  },
+
+                  "&.Mui-focused": {
+                    background: "#ffffff",
+
+                    boxShadow: "0 0 0 4px rgba(0,0,0,0.06)",
+
+                    "& fieldset": {
+                      borderColor: "rgba(0,0,0,0.08)",
+                    },
+                  },
+                },
+
+                "& input::placeholder": {
+                  color: "#8e8e93",
+                  opacity: 1,
+                },
+              }}
+            />
+
+            <TextField
+              inputRef={inputRef}
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              onKeyDown={handleEnter}
+              fullWidth
+              variant="outlined"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "18px",
+
+                  background: "#f5f5f7",
+
+                  fontSize: "0.95rem",
+
+                  transition: "all 0.28s cubic-bezier(.4,0,.2,1)",
+
+                  "& fieldset": {
+                    border: "1px solid transparent",
+                  },
+
+                  "&:hover": {
+                    background: "#f1f1f4",
+                  },
+
+                  "&.Mui-focused": {
+                    background: "#ffffff",
+
+                    boxShadow: "0 0 0 4px rgba(0,0,0,0.06)",
+
+                    "& fieldset": {
+                      borderColor: "rgba(0,0,0,0.08)",
+                    },
+                  },
+                },
+
+                "& input::placeholder": {
+                  color: "#8e8e93",
+                  opacity: 1,
+                },
+              }}
+            />
+
+            <TextField
+              inputRef={inputRef}
+              placeholder="BPM"
+              value={bpm}
+              onChange={(e) => setBpm(e.target.value)}
+              onKeyDown={handleEnter}
+              fullWidth
+              variant="outlined"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "18px",
+
+                  background: "#f5f5f7",
+
+                  fontSize: "0.95rem",
+
+                  transition: "all 0.28s cubic-bezier(.4,0,.2,1)",
+
+                  "& fieldset": {
+                    border: "1px solid transparent",
+                  },
+
+                  "&:hover": {
+                    background: "#f1f1f4",
+                  },
+
+                  "&.Mui-focused": {
+                    background: "#ffffff",
+
+                    boxShadow: "0 0 0 4px rgba(0,0,0,0.06)",
+
+                    "& fieldset": {
+                      borderColor: "rgba(0,0,0,0.08)",
+                    },
+                  },
+                },
+
+                "& input::placeholder": {
+                  color: "#8e8e93",
+                  opacity: 1,
+                },
+              }}
+            />
+
+            <TextField
+              inputRef={inputRef}
+              placeholder="Genre"
+              value={genre}
+              onChange={(e) => setGenre(e.target.value)}
+              onKeyDown={handleEnter}
+              fullWidth
+              variant="outlined"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "18px",
+
+                  background: "#f5f5f7",
+
+                  fontSize: "0.95rem",
+
+                  transition: "all 0.28s cubic-bezier(.4,0,.2,1)",
+
+                  "& fieldset": {
+                    border: "1px solid transparent",
+                  },
+
+                  "&:hover": {
+                    background: "#f1f1f4",
+                  },
+
+                  "&.Mui-focused": {
+                    background: "#ffffff",
+
+                    boxShadow: "0 0 0 4px rgba(0,0,0,0.06)",
+
+                    "& fieldset": {
+                      borderColor: "rgba(0,0,0,0.08)",
+                    },
+                  },
+                },
+
+                "& input::placeholder": {
+                  color: "#8e8e93",
+                  opacity: 1,
+                },
+              }}
+            />
+
+            <TextField
+              inputRef={inputRef}
+              placeholder="Scale"
+              value={scale}
+              onChange={(e) => setScale(e.target.value)}
               onKeyDown={handleEnter}
               fullWidth
               variant="outlined"

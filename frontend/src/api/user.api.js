@@ -40,3 +40,26 @@ export async function fetchRecentProjects(user) {
     const recentProjects = await res.json();
     return recentProjects;
 }
+
+export async function fetchUserProjects(user) {
+    if (!user) {
+        throw new Error("No user provided")
+    }
+
+    const token = await user.getIdToken();
+
+    const res = await fetch("http://localhost:3000/api/projects/all", {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+
+    if (!res.ok) {
+        throw new Error("Error fetching user projects")
+    }
+
+    const projects = await res.json();
+    console.log("This is the returned projects", projects)
+    return projects;
+}

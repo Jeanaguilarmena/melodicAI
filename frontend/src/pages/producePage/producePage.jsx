@@ -12,15 +12,103 @@ function ProducePage() {
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   // This is hardcoded for now, but in a real app this would be loaded from a server or created by the user
   const [composition, setComposition] = useState({
+    // harmony: [
+    //   {
+    //     name: "Em",
+    //     start: 0,
+    //     bass: { pitch: 4, length: 16 },
+    //     chord: [
+    //       { pitch: 16, length: 16 },
+    //       { pitch: 19, length: 16 },
+    //       { pitch: 23, length: 16 },
+    //     ],
+    //   },
+    //   {
+    //     name: "G",
+    //     start: 16,
+    //     bass: { pitch: 7, length: 16 },
+    //     chord: [
+    //       { pitch: 19, length: 16 },
+    //       { pitch: 23, length: 16 },
+    //       { pitch: 26, length: 16 },
+    //     ],
+    //   },
+    //   {
+    //     name: "D",
+    //     start: 32,
+    //     bass: { pitch: 2, length: 16 },
+    //     chord: [
+    //       { pitch: 14, length: 16 },
+    //       { pitch: 18, length: 16 },
+    //       { pitch: 21, length: 16 },
+    //     ],
+    //   },
+    //   {
+    //     name: "A",
+    //     start: 48,
+    //     bass: { pitch: 9, length: 16 },
+    //     chord: [
+    //       { pitch: 21, length: 16 },
+    //       { pitch: 25, length: 16 },
+    //       { pitch: 28, length: 16 },
+    //     ],
+    //   },
+    //   {
+    //     name: "Em",
+    //     start: 64,
+    //     bass: { pitch: 4, length: 16 },
+    //     chord: [
+    //       { pitch: 16, length: 16 },
+    //       { pitch: 19, length: 16 },
+    //       { pitch: 23, length: 16 },
+    //     ],
+    //   },
+    //   {
+    //     name: "G",
+    //     start: 80,
+    //     bass: { pitch: 7, length: 16 },
+    //     chord: [
+    //       { pitch: 19, length: 16 },
+    //       { pitch: 23, length: 16 },
+    //       { pitch: 26, length: 16 },
+    //     ],
+    //   },
+    //   {
+    //     name: "D",
+    //     start: 96,
+    //     bass: { pitch: 2, length: 16 },
+    //     chord: [
+    //       { pitch: 14, length: 16 },
+    //       { pitch: 18, length: 16 },
+    //       { pitch: 21, length: 16 },
+    //     ],
+    //   },
+    //   {
+    //     name: "A",
+    //     start: 112,
+    //     bass: { pitch: 9, length: 16 },
+    //     chord: [
+    //       { pitch: 21, length: 16 },
+    //       { pitch: 25, length: 16 },
+    //       { pitch: 28, length: 16 },
+    //     ],
+    //   },
+    // ],
+
+    // melody: {
+    //   ai: [],
+    //   user: [],
+    // },
+
     harmony: [
       {
         name: "Em",
         start: 0,
-        bass: { pitch: 4, length: 16 }, // E2 aprox
+        bass: { pitch: 4, length: 16 },
         chord: [
           { pitch: 16, length: 16 },
-          { pitch: 19, length: 16 }, // G +12
-          { pitch: 23, length: 16 }, // B +12
+          { pitch: 19, length: 16 },
+          { pitch: 23, length: 16 },
         ],
       },
       {
@@ -29,8 +117,8 @@ function ProducePage() {
         bass: { pitch: 7, length: 16 },
         chord: [
           { pitch: 19, length: 16 },
-          { pitch: 23, length: 16 }, // B +12
-          { pitch: 26, length: 16 }, // D +12
+          { pitch: 23, length: 16 },
+          { pitch: 26, length: 16 },
         ],
       },
       {
@@ -39,8 +127,8 @@ function ProducePage() {
         bass: { pitch: 2, length: 16 },
         chord: [
           { pitch: 14, length: 16 },
-          { pitch: 18, length: 16 }, // F# +12
-          { pitch: 21, length: 16 }, // A +12
+          { pitch: 18, length: 16 },
+          { pitch: 21, length: 16 },
         ],
       },
       {
@@ -49,18 +137,18 @@ function ProducePage() {
         bass: { pitch: 9, length: 16 },
         chord: [
           { pitch: 21, length: 16 },
-          { pitch: 25, length: 16 }, // C# +12
-          { pitch: 28, length: 16 }, // E +12
+          { pitch: 25, length: 16 },
+          { pitch: 28, length: 16 },
         ],
       },
       {
         name: "Em",
         start: 64,
-        bass: { pitch: 4, length: 16 }, // E2 aprox
+        bass: { pitch: 4, length: 16 },
         chord: [
           { pitch: 16, length: 16 },
-          { pitch: 19, length: 16 }, // G +12
-          { pitch: 23, length: 16 }, // B +12
+          { pitch: 19, length: 16 },
+          { pitch: 23, length: 16 },
         ],
       },
       {
@@ -69,8 +157,8 @@ function ProducePage() {
         bass: { pitch: 7, length: 16 },
         chord: [
           { pitch: 19, length: 16 },
-          { pitch: 23, length: 16 }, // B +12
-          { pitch: 26, length: 16 }, // D +12
+          { pitch: 23, length: 16 },
+          { pitch: 26, length: 16 },
         ],
       },
       {
@@ -79,8 +167,8 @@ function ProducePage() {
         bass: { pitch: 2, length: 16 },
         chord: [
           { pitch: 14, length: 16 },
-          { pitch: 18, length: 16 }, // F# +12
-          { pitch: 21, length: 16 }, // A +12
+          { pitch: 18, length: 16 },
+          { pitch: 21, length: 16 },
         ],
       },
       {
@@ -89,48 +177,48 @@ function ProducePage() {
         bass: { pitch: 9, length: 16 },
         chord: [
           { pitch: 21, length: 16 },
-          { pitch: 25, length: 16 }, // C# +12
-          { pitch: 28, length: 16 }, // E +12
+          { pitch: 25, length: 16 },
+          { pitch: 28, length: 16 },
         ],
       },
     ],
+
     melody: {
-      ai: [
-        // Em (E G B)
-        { pitch: 31, start: 0, length: 8 }, // B
-        { pitch: 28, start: 8, length: 8 }, // G
+      ai: [],
 
-        // G (G B D)
-        { pitch: 31, start: 16, length: 8 }, // B
-        { pitch: 33, start: 24, length: 8 }, // D
+      user: [
+        { pitch: 40, start: 0, length: 3, source: "user" },
+        { pitch: 40, start: 4, length: 3, source: "user" },
+        { pitch: 38, start: 8, length: 3, source: "user" },
+        { pitch: 35, start: 12, length: 3, source: "user" },
+        { pitch: 28, start: 14, length: 4, source: "user" },
+        { pitch: 35, start: 18, length: 2, source: "user" },
+        { pitch: 33, start: 20, length: 3, source: "user" },
+        { pitch: 31, start: 24, length: 3, source: "user" },
+        { pitch: 40, start: 28, length: 3, source: "user" },
+        { pitch: 30, start: 32, length: 3, source: "user" },
+        { pitch: 26, start: 38, length: 3, source: "user" },
+        { pitch: 33, start: 42, length: 3, source: "user" },
+        { pitch: 28, start: 46, length: 1, source: "user" },
 
-        // D (D F# A)
-        { pitch: 33, start: 32, length: 8 }, // D
-        { pitch: 30, start: 40, length: 8 }, // A
+        { pitch: 25, start: 52, length: 3, source: "user" },
+        { pitch: 23, start: 58, length: 4, source: "user" },
 
-        // A (A C# E)
-        { pitch: 30, start: 48, length: 8 }, // A
-        { pitch: 28, start: 56, length: 8 }, // E
+        { pitch: 35, start: 64, length: 3, source: "user" },
+        { pitch: 33, start: 70, length: 4, source: "user" },
+        { pitch: 31, start: 76, length: 3, source: "user" },
+        { pitch: 35, start: 80, length: 4, source: "user" },
+        { pitch: 31, start: 86, length: 4, source: "user" },
+        { pitch: 30, start: 92, length: 3, source: "user" },
+        { pitch: 26, start: 96, length: 4, source: "user" },
+        { pitch: 30, start: 102, length: 4, source: "user" },
+        { pitch: 33, start: 108, length: 4, source: "user" },
+        { pitch: 26, start: 118, length: 4, source: "user" },
+        { pitch: 25, start: 124, length: 1, source: "user" },
 
-        // Repetición tipo Alan Walker (motivo repetido)
-        // Em
-        { pitch: 31, start: 64, length: 8 },
-        { pitch: 28, start: 72, length: 8 },
-
-        // G
-        { pitch: 31, start: 80, length: 8 },
-        { pitch: 33, start: 88, length: 8 },
-
-        // D
-        { pitch: 33, start: 96, length: 8 },
-        { pitch: 30, start: 104, length: 8 },
-
-        // A resolución emocional
-        { pitch: 30, start: 112, length: 4 },
-        { pitch: 28, start: 116, length: 4 },
-        { pitch: 31, start: 120, length: 8 },
+        { pitch: 21, start: 12, length: 1, source: "user" },
+        { pitch: 23, start: 28, length: 1, source: "user" },
       ],
-      user: [],
     },
   });
 
@@ -153,12 +241,24 @@ function ProducePage() {
     }));
   };
 
-  async function handleSaveProject(projectName) {
+  async function handleSaveProject(
+    projectName,
+    description,
+    artist,
+    bpm,
+    genre,
+    scale
+  ) {
     const token = await user.getIdToken();
 
     const payload = {
       name: projectName,
-      composition,
+      description: description,
+      artist: artist,
+      bpm: bpm,
+      genre: genre,
+      scale: scale,
+      ...composition,
     };
 
     try {

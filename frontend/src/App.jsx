@@ -29,6 +29,7 @@ function App() {
                 <Route path="play" element={<PlayPage />} />
                 <Route path="projects" element={<ProjectsPage />} />
                 <Route path="projects/:id" element={<OpenProjectPage />} />
+                <Route path="*" element={<MainPage />} />
               </Route>
             </Route>
           </Routes>

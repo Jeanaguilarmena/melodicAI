@@ -1,8 +1,25 @@
 import { db } from '../config/firebaseAdmin.js';
 import admin from "firebase-admin";
 
-export const getUserProjects = async (id) => {
+export const getUserProjects = async (userId) => {
+    try {
+        const snapshot = await db.collection("projects").where("userId", "==", userId).get();
 
+        if (snapshot.empty) {
+            return [];
+        }
+
+        const projects = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+        return projects;
+
+    } catch (error) {
+        console.error("Error fetching user projects", error)
+        throw error;
+    }
 }
 
 export const getRecentUserProjects = async (userId) => {
