@@ -39,3 +39,19 @@ export const createUser = async (firebaseUser) => {
 
     return { created: true, user: newUser };
 };
+
+export const updateUserProfile = async (id, updatedProfile) => {
+    const ref = db.collection('users').doc(id);
+
+    await ref.update({
+        ...updatedProfile,
+        updatedAt: new Date()
+    });
+
+    const snap = await ref.get();
+
+    return {
+        id: snap.id,
+        ...snap.data()
+    };
+};

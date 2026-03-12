@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Button, Card, Typography, Divider } from "@mui/material";
 import { motion } from "framer-motion";
 import profilePhoto from "../../assets/profilePhoto.png";
@@ -7,11 +7,14 @@ import { useNavigate } from "react-router-dom";
 import { fetchUserProfile, fetchRecentProjects } from "../../api/user.api";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../../context/authContext";
+import EditProfileModal from "../editProfileModal/editProfileModal";
 
 const MotionCard = motion(Card);
 const MotionBox = motion(Box);
 
 function Profile() {
+  const [openEditModal, setOpenEditModal] = useState(false);
+
   const navigate = useNavigate();
   function handleSeeAllProjects() {
     navigate("/home/projects");
@@ -40,8 +43,50 @@ function Profile() {
     enabled: !!user,
   });
 
-  console.log("THIS IS THE USER PROFILE,", userProfile);
-  console.log("THIS ARE THE RECENT PROJECTS", recentProjects);
+  function handleEditProfile() {
+    setOpenEditModal(true);
+  }
+
+  async function handleSaveEditedProfile(
+    artisticName,
+    occupation,
+    country,
+    primaryGenre,
+    secondaryGenre,
+    instrument
+  ) {
+    const payload = {
+      artisticName: artisticName,
+      occupation: occupation,
+      country: country,
+      primaryGenre: primaryGenre,
+      secondaryGenre: secondaryGenre,
+      instrument: instrument,
+    };
+    console.log("Saving updated user", payload);
+
+    try {
+      const token = await user.getIdToken();
+
+      const res = await fetch("http://localhost:3000/api/users", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error("Error updating profile");
+      }
+
+      console.log("Profile updated");
+      setOpenEditModal(false);
+    } catch (error) {
+      console.error("Error updating profile", error);
+    }
+  }
 
   if (isLoading || recentProjectsLoading) {
     return <Box sx={{ p: 4 }}>👤 Loading profile...</Box>;
@@ -119,6 +164,7 @@ function Profile() {
             </Typography>
 
             <Button
+              onClick={handleEditProfile}
               sx={{
                 mt: 3,
                 px: 4,
@@ -156,9 +202,12 @@ function Profile() {
         >
           {[
             { label: "Projects", value: userProfile.projects },
-            { label: "primaryGenre", value: userProfile.primaryGenre },
-            { label: "secondaryGenre", value: userProfile.secondaryGenre },
-            { label: "instrument", value: userProfile.instrument },
+            { label: "primaryGenre", value: userProfile.primaryGenre || "Pop" },
+            {
+              label: "secondaryGenre",
+              value: userProfile.secondaryGenre || "EDM",
+            },
+            { label: "instrument", value: userProfile.instrument || "Guitar" },
           ].map((stat) => (
             <Box key={stat.label} sx={{ textAlign: "center" }}>
               <Typography
@@ -218,6 +267,14 @@ function Profile() {
           </Typography>
         </Box>
       </Box>
+      {openEditModal && (
+        <EditProfileModal
+          open={openEditModal}
+          onClose={() => setOpenEditModal(false)}
+          onSave={handleSaveEditedProfile}
+          profile={userProfile}
+        />
+      )}
     </Box>
   );
 }

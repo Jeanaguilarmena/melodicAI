@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { firebaseAuthMiddleware } from '../middleware/firebaseAuth.Middleware.js'
-import { getUserById, createUser } from '../services/user.services.js'
+import { getUserById, createUser, updateUserProfile } from '../services/user.services.js'
 
 const router = Router();
 
@@ -37,5 +37,20 @@ router.post('/me', firebaseAuthMiddleware, async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 })
+
+router.patch("/", firebaseAuthMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.uid;
+        const updatedProfile = req.body;
+
+        const result = await updateUserProfile(userId, updatedProfile);
+
+        res.status(200).json(result);
+
+    } catch (error) {
+        console.error('Error updating user profile', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 export default router;

@@ -1,12 +1,16 @@
 import React from "react";
 import { Box, Card, Typography } from "@mui/material";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const MotionCard = motion(Card);
 
-function Projects({ photo, name, description, artist, style, bpm, keyNote }) {
+function Projects({ photo, project }) {
+  const navigate = useNavigate();
   function handleOpenProject() {
-    console.log(`Opening project: ${name}`);
+    navigate(`/home/projects/${project.id}`, {
+      state: { project },
+    });
   }
 
   return (
@@ -67,7 +71,7 @@ function Projects({ photo, name, description, artist, style, bpm, keyNote }) {
           color: "#1d1d1f",
         }}
       >
-        {name}
+        {project.name}
       </Typography>
 
       {/* ARTIST */}
@@ -78,7 +82,7 @@ function Projects({ photo, name, description, artist, style, bpm, keyNote }) {
           mt: 0.5,
         }}
       >
-        {artist}
+        {project.artist}
       </Typography>
 
       {/* DESCRIPTION */}
@@ -94,7 +98,7 @@ function Projects({ photo, name, description, artist, style, bpm, keyNote }) {
           overflow: "hidden",
         }}
       >
-        {description}
+        {project.description}
       </Typography>
 
       {/* META CAPSULES */}
@@ -106,26 +110,28 @@ function Projects({ photo, name, description, artist, style, bpm, keyNote }) {
           flexWrap: "wrap",
         }}
       >
-        {[style, `${bpm} BPM`, keyNote].map((item, index) => (
-          <Box
-            key={index}
-            sx={{
-              px: 2,
-              py: 0.7,
-              borderRadius: "12px",
-              fontSize: "0.75rem",
-              fontWeight: 500,
-              color: "#1d1d1f",
+        {[project.genre, `${project.bpm} BPM`, project.scale].map(
+          (item, index) => (
+            <Box
+              key={index}
+              sx={{
+                px: 2,
+                py: 0.7,
+                borderRadius: "12px",
+                fontSize: "0.75rem",
+                fontWeight: 500,
+                color: "#1d1d1f",
 
-              background: "rgba(255,255,255,0.9)",
-              border: "1px solid rgba(0,0,0,0.04)",
-              boxShadow: "0 3px 10px rgba(0,0,0,0.05)",
-              transition: "all 0.3s ease",
-            }}
-          >
-            {item}
-          </Box>
-        ))}
+                background: "rgba(255,255,255,0.9)",
+                border: "1px solid rgba(0,0,0,0.04)",
+                boxShadow: "0 3px 10px rgba(0,0,0,0.05)",
+                transition: "all 0.3s ease",
+              }}
+            >
+              {item}
+            </Box>
+          )
+        )}
       </Box>
 
       {/* OPEN */}
