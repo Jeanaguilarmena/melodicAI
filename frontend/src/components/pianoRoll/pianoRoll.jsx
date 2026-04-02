@@ -15,7 +15,12 @@ import { motion } from "framer-motion";
 
 const MotionCard = motion(Card);
 
-const PianoRoll = ({ composition, onCompositionChange, onAiRequest }) => {
+const PianoRoll = ({
+  composition,
+  onCompositionChange,
+  onAiRequest,
+  chordProgression,
+}) => {
   const canvasRef = useRef(null);
 
   //Initial configuration
@@ -283,6 +288,7 @@ const PianoRoll = ({ composition, onCompositionChange, onAiRequest }) => {
           userNotes,
           aiContext,
           cutTime,
+          chordProgression,
         };
 
         console.log("Triggering AI request:", payload);

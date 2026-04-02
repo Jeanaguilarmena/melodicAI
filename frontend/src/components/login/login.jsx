@@ -10,7 +10,7 @@ function Login() {
 
   useEffect(() => {
     if (!loading && authed) {
-      navigate("/home");
+      navigate("/home", { replace: true });
     }
   }, [authed, loading, navigate]);
 

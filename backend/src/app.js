@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import userRoutes from './routes/user.routes.js';
 import userProjects from './routes/projects.routes.js'
+import aiRoutes from './routes/ai.routes.js'
 
 const app = express();
 
@@ -12,5 +13,7 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 //this is for projects
 app.use('/api/projects', userProjects);
+//This is for generate melody using ai service
+app.use('/api/ai', aiRoutes)
 
 export default app;

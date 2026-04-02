@@ -49,19 +49,23 @@ export const getRecentUserProjects = async (userId) => {
 
 export const saveUserProject = async (userId, project) => {
     try {
-
         const newProject = {
             userId,
             ...project,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         }
 
         const docRef = await db.collection("projects").add(newProject);
 
+        await db.collection('users').doc(userId).update({
+            projects: admin.firestore.FieldValue.increment(1),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        })
+
         return {
             id: docRef.id,
-            newProject
+            ...newProject
         }
     } catch (error) {
         console.error("Error in saveUserProject service:", error);

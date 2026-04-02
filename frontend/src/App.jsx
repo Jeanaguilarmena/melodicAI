@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import HeaderPage from "./pages/headerPage/headerPage";
 import MainPage from "./pages/mainPage/mainPage";
 import ProfilePage from "./pages/profilePage/profilePage";
@@ -22,6 +22,8 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
 
             <Route path="/" element={<AuthApp />}>
+              <Route index element={<Navigate to="home" replace />} />
+
               <Route path="home" element={<HeaderPage />}>
                 <Route index element={<MainPage />} />
                 <Route path="profile" element={<ProfilePage />} />
