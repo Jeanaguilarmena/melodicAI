@@ -153,11 +153,11 @@ function ProducePage() {
   const handleAiRequest = async (payload) => {
     const { userNotes, aiContext, cutTime } = payload;
 
-    //This is mocked
-    const regenerated = [
-      { pitch: 30, start: cutTime + 2, length: 4 },
-      { pitch: 31, start: cutTime + 6, length: 4 },
-    ];
+    const regenerated = Array.from({ length: 5 }, (_, i) => ({
+      pitch: [36, 33, 31, 29, 38][i % 5],
+      start: cutTime + i * 4 + 4,
+      length: 4,
+    }));
 
     // const generatedNotes = await makeAIRequest(user, {
     //   userNotes,
@@ -166,7 +166,7 @@ function ProducePage() {
     //   initialSettings,
     // });
 
-    //Here I need to make the request to the AI and then update the composition with the new Melod
+    //Here I need to make the request to the AI and then update the composition with the new Melody
     setComposition((prev) => ({
       ...prev,
       melody: {

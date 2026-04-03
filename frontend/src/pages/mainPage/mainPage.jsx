@@ -10,6 +10,7 @@ import {
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import pianoRollWallpaper from "../../assets/pianoRollWallpaper.png";
+import demoVideo from "../../assets/demoVideo.mov";
 
 const MotionBox = motion(Box);
 const MotionCard = motion(Card);
@@ -238,23 +239,89 @@ function MainPage() {
         </MotionBox>
 
         <MotionBox
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 1, ease: "easeOut" }}
           sx={{
-            height: 420,
+            width: "100%",
+            maxWidth: "900px",
+            aspectRatio: "16 / 9",
+            margin: "0 auto",
             borderRadius: "32px",
-            background: "linear-gradient(135deg,#ffffff,#f2f2f5)",
-            boxShadow: "0 30px 80px rgba(0,0,0,0.12)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#6e6e73",
-            fontSize: "1.1rem",
+            overflow: "hidden",
+            position: "relative",
+            boxShadow: "0 40px 100px rgba(0,0,0,0.18)",
+            backgroundColor: "#000",
+
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              inset: 0,
+              borderRadius: "32px",
+              pointerEvents: "none",
+              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)",
+            },
+
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              background:
+                "radial-gradient(circle at center, transparent 60%, rgba(0,0,0,0.25))",
+            },
           }}
         >
-          Piano Roll Demo
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+          >
+            <source src={demoVideo} type="video/mp4" />
+          </video>
+
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "flex-end",
+              p: 4,
+              background:
+                "linear-gradient(to top, rgba(0,0,0,0.45), rgba(0,0,0,0.0) 60%)",
+            }}
+          >
+            <Box>
+              <Typography
+                sx={{
+                  color: "#fff",
+                  fontWeight: 600,
+                  fontSize: "1.15rem",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Audio Processing
+              </Typography>
+
+              <Typography
+                sx={{
+                  color: "rgba(255,255,255,0.75)",
+                  fontSize: "0.95rem",
+                  mt: 0.5,
+                }}
+              >
+                Separate vocals and instruments seamlessly
+              </Typography>
+            </Box>
+          </Box>
         </MotionBox>
       </Container>
     </Box>

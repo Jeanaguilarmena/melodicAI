@@ -101,7 +101,6 @@ const PianoRoll = ({
 
   const audioRefs = useRef({});
 
-  // Sync when composition changes
   useEffect(() => {
     setNotes(flattenComposition(composition));
   }, [composition]);
@@ -157,7 +156,6 @@ const PianoRoll = ({
     } catch {}
   };
 
-  // Playback engine
   useEffect(() => {
     if (!isPlaying) return;
 
@@ -358,37 +356,59 @@ const PianoRoll = ({
   const drawGrid = (ctx) => {
     ctx.clearRect(0, 0, totalWidth, totalHeight);
 
+    const bg = ctx.createLinearGradient(0, 0, 0, totalHeight);
+    bg.addColorStop(0, "#1c1c1e");
+    bg.addColorStop(1, "#121214");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, totalWidth, totalHeight);
+
     for (let i = 0; i <= totalSteps; i++) {
       const x = Math.round(i * stepWidth) + 0.5;
+
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, totalHeight);
 
-      ctx.strokeStyle =
-        i % totalStepsPerBar === 0
-          ? "rgba(255,255,255,0.18)"
-          : i % stepsPerBeat === 0
-          ? "rgba(255,255,255,0.10)"
-          : "rgba(255,255,255,0.05)";
+      if (i % totalStepsPerBar === 0) {
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.lineWidth = 1.5;
+      } else if (i % stepsPerBeat === 0) {
+        ctx.strokeStyle = "rgba(255,255,255,0.07)";
+        ctx.lineWidth = 1;
+      } else {
+        ctx.strokeStyle = "rgba(255,255,255,0.03)";
+        ctx.lineWidth = 1;
+      }
 
-      ctx.lineWidth = i % totalStepsPerBar === 0 ? 2 : 1;
       ctx.stroke();
     }
 
     for (let i = 0; i <= totalKeys; i++) {
       const y = Math.round(i * rowHeight) + 0.5;
+
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(totalWidth, y);
-      ctx.strokeStyle = "rgba(255,255,255,0.06)";
+
+      ctx.strokeStyle = "rgba(255,255,255,0.035)";
       ctx.stroke();
     }
 
+    const playX = currentStep * stepWidth;
+
+    const glow = ctx.createLinearGradient(playX - 2, 0, playX + 2, 0);
+    glow.addColorStop(0, "rgba(255,80,80,0)");
+    glow.addColorStop(0.5, "rgba(255,80,80,0.8)");
+    glow.addColorStop(1, "rgba(255,80,80,0)");
+
+    ctx.fillStyle = glow;
+    ctx.fillRect(playX - 2, 0, 4, totalHeight);
+
     ctx.beginPath();
-    ctx.moveTo(currentStep * stepWidth, 0);
-    ctx.lineTo(currentStep * stepWidth, totalHeight);
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 2;
+    ctx.moveTo(playX, 0);
+    ctx.lineTo(playX, totalHeight);
+    ctx.strokeStyle = "#ff4d4d";
+    ctx.lineWidth = 1.2;
     ctx.stroke();
   };
 
@@ -396,15 +416,55 @@ const PianoRoll = ({
     notes.forEach((note) => {
       const x = note.start * stepWidth;
       const y = (totalKeys - note.pitch - 1) * rowHeight;
+      const width = note.length * stepWidth;
+      const height = rowHeight - 2;
 
-      ctx.fillStyle =
-        note.source === "ai"
-          ? "rgba(180,180,180,0.7)"
-          : note.source === "harmony"
-          ? "rgba(120,120,120,0.5)"
-          : "#4da6ff";
+      let gradient;
 
-      ctx.fillRect(x, y, note.length * stepWidth, rowHeight);
+      if (note.source === "ai") {
+        gradient = ctx.createLinearGradient(x, y, x, y + height);
+        gradient.addColorStop(0, "#a1a1aa");
+        gradient.addColorStop(1, "#71717a");
+      } else if (note.source === "harmony") {
+        gradient = ctx.createLinearGradient(x, y, x, y + height);
+        gradient.addColorStop(0, "#52525b");
+        gradient.addColorStop(1, "#3f3f46");
+      } else {
+        gradient = ctx.createLinearGradient(x, y, x, y + height);
+        gradient.addColorStop(0, "#3b82f6");
+        gradient.addColorStop(1, "#2563eb");
+      }
+
+      ctx.shadowColor = "rgba(0,0,0,0.4)";
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetY = 2;
+
+      const radius = 6;
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(
+        x + width,
+        y + height,
+        x + width - radius,
+        y + height
+      );
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
     });
   };
 
@@ -426,7 +486,9 @@ const PianoRoll = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "radial-gradient(circle at 20% 20%, #2a2a2a, #121212 70%)",
+
+        background: "radial-gradient(circle at 30% 20%, #1f1f22, #0d0d0f 70%)",
+
         p: 4,
       }}
     >
@@ -439,16 +501,17 @@ const PianoRoll = ({
           maxWidth: 1200,
           height: 500,
           borderRadius: "28px",
-          backdropFilter: "blur(30px)",
-          background: alpha("#ffffff", 0.05),
-          border: `1px solid ${alpha("#ffffff", 0.08)}`,
-          boxShadow: "0 30px 80px rgba(0,0,0,0.6)",
+
+          backdropFilter: "blur(40px)",
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          boxShadow: "0 40px 120px rgba(0,0,0,0.7)",
+
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
         }}
       >
-        {/* Header */}
         <Box
           sx={{
             px: 3,
@@ -475,10 +538,14 @@ const PianoRoll = ({
               width: 46,
               height: 46,
               borderRadius: "16px",
-              background: alpha("#ffffff", 0.08),
+
+              background: "rgba(255,255,255,0.06)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255,255,255,0.08)",
+
               transition: "all 0.25s ease",
               "&:hover": {
-                background: alpha("#ffffff", 0.15),
+                background: "rgba(255,255,255,0.12)",
                 transform: "scale(1.05)",
               },
             }}
@@ -491,9 +558,8 @@ const PianoRoll = ({
           </IconButton>
         </Box>
 
-        <Divider sx={{ borderColor: alpha("#ffffff", 0.08) }} />
+        <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
 
-        {/* Scrollable Piano Area — FUNCIONALIDAD INTACTA */}
         <Box
           sx={{
             flex: 1,
@@ -506,7 +572,6 @@ const PianoRoll = ({
               minHeight: totalHeight,
             }}
           >
-            {/* Piano Keys — MISMO TAMAÑO */}
             <Box
               sx={{
                 width: pianoWidth,
@@ -522,13 +587,17 @@ const PianoRoll = ({
                     onMouseDown={() => playNote(reversedIndex)}
                     sx={{
                       height: rowHeight,
+
                       background: isBlack
-                        ? alpha("#000", 0.7)
-                        : alpha("#fff", 0.9),
-                      transition: "background 0.15s ease",
+                        ? "linear-gradient(180deg, #1a1a1a, #000)"
+                        : "linear-gradient(180deg, #ffffff, #e5e5e5)",
+
+                      borderRight: "1px solid rgba(0,0,0,0.1)",
+                      transition: "all 0.15s ease",
                       cursor: "pointer",
+
                       "&:hover": {
-                        background: isBlack ? alpha("#000", 0.9) : "#ffffff",
+                        filter: "brightness(1.1)",
                       },
                     }}
                   />
@@ -536,7 +605,6 @@ const PianoRoll = ({
               })}
             </Box>
 
-            {/* Canvas Scroll — NO SE TOCA NADA */}
             <Box
               sx={{
                 flex: 1,
